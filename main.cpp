@@ -34,6 +34,7 @@ vec3 ray_color(const ray& r, const hittable& world,int depth)
         vec3 reflectPoint = rec.p + rec.normal + random_in_unit_sphere();
         return 0.5 * ray_color(ray(rec.p, reflectPoint), world,depth-1);
 	}
+
     vec3 unit_direction = unit_vector(r.direction());
     //(x+1)*0.5是为了把(-1,1)转换成(0,1)
     auto p = 0.5 * (unit_direction.y() + 1.0);
