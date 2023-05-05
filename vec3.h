@@ -90,23 +90,6 @@ inline vec3 operator*(double t, const vec3& v) {
     return vec3(t * v.e[0], t * v.e[1], t * v.e[2]);
 }
 
-//在单位球内的随机点
-vec3 random_unit_vector() {
-    auto a = random_double(0, 2 * pi);
-    auto z = random_double(-1, 1);
-    auto r = sqrt(1 - z * z);
-    return vec3(r * cos(a), r * sin(a), z);
-}
-
-vec3 random_in_unit_sphere() {
-    while (true) {
-        vec3 p = vec3::random(-1, 1);
-        if (p.length_squared() >= 1)
-            continue;
-        return p;
-    }
-}
-
 inline vec3 operator*(const vec3& v, double t) {
     return t * v;
 }
@@ -129,6 +112,52 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 
 inline vec3 unit_vector(vec3 v) {
     return v / v.length();
+}
+
+//在单位球内的随机点组成的单位方向向量
+inline vec3 random_unit_vector() {
+    auto a = random_double(0, 2 * pi);
+    auto z = random_double(-1, 1);
+    auto r = sqrt(1 - z * z);
+    return vec3(r * cos(a), r * sin(a), z);
+}
+
+//在- 1到 + 1的单位立方体中选取一个随机点
+inline vec3 random_in_unit_sphere() {
+    while (true) {
+        vec3 p = vec3::random(-1, 1);
+        if (p.length_squared() >= 1)
+            continue;
+        return p;
+    }
+}
+
+//在半球内的随机单位方向向量
+inline vec3 random_in_hemisphere(const vec3& normal) {
+    vec3 in_unit_sphere = random_in_unit_sphere();
+    if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
+}
+
+inline vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2 * dot(v, n) * n;
+}
+
+//根据折射公式计算
+inline vec3 refract(const vec3& incidentLight, const vec3& Normal, double etai_over_etat) {
+    auto cos_theta = dot(-incidentLight, Normal);
+    vec3 r_out_parallel = etai_over_etat * (incidentLight + cos_theta * Normal);
+    vec3 r_out_perp = -sqrt(1.0 - r_out_parallel.length_squared()) * Normal;
+    return r_out_parallel + r_out_perp;
+}
+
+//发生折射的概率会随着入射角而改变
+inline double schlick(double cosine, double ref_idx) {
+    auto r0 = (1 - ref_idx) / (1 + ref_idx);
+    r0 = r0 * r0;
+    return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
 

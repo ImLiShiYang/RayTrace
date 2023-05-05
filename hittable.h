@@ -3,11 +3,15 @@
 
 #include "ray.h"
 
+class material;
+
 struct hit_record {
     //相交的点
     vec3 p;
     //相交点的法向量
     vec3 normal;
+    //材质类
+    shared_ptr<material> mat_ptr;
     //经过多长时间
     double t;
 

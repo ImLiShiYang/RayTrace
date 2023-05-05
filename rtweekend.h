@@ -40,7 +40,9 @@ inline double random_double(double min, double max) {
     return min + (max - min) * random_double();
 }
 
+//返回较小值
 inline double ffmin(double a, double b) { return a <= b ? a : b; }
+//返回较大值
 inline double ffmax(double a, double b) { return a >= b ? a : b; }
 
 // Common Headers
