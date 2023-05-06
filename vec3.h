@@ -169,5 +169,10 @@ inline vec3 random_in_unit_disk() {
     }
 }
 
+inline int random_int(int min,int max)
+{
+    return random_double(min, max);
+}
+
 
 #endif // !VEC3

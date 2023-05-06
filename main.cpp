@@ -7,6 +7,7 @@
 #include "sphere.h"
 #include "camera.h"
 #include "material.h"
+#include "bvh.h"
 
 using namespace std;
 
@@ -86,7 +87,8 @@ hittable_list random_scene() {
     world.add(
         make_shared<sphere>(vec3(4, 1, 0), 1.0, make_shared<metal>(vec3(0.7, 0.6, 0.5), 0.0)));
 
-    return world;
+    return static_cast<hittable_list>(make_shared<bvh_node>(world, 0, 1));
+    //return world;
 }
 
 int main() {

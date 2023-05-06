@@ -131,6 +131,8 @@
     <ClCompile Include="material.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="boundingBox.h" />
+    <ClInclude Include="bvh.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="hittable.h" />
     <ClInclude Include="hittable_list.h" />

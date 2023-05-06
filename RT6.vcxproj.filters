@@ -44,6 +44,12 @@
     <ClInclude Include="camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="boundingBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="bvh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MyImage.ppm" />
