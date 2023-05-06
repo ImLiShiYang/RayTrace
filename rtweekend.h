@@ -22,8 +22,8 @@ inline double degrees_to_radians(double degrees) {
 	return degrees * pi / 180;
 }
 
-inline double random_double() {
-    // Returns a random real in [0,1).
+// 返回一个0-1之间的数
+inline double random_double() {    
     return rand() / (RAND_MAX + 1.0);
 }
 

@@ -59,8 +59,9 @@ hittable_list random_scene() {
                 if (choose_mat < 0.8) {
                     // diffuse
                     auto albedo = vec3::random() * vec3::random();
-                    world.add(
-                        make_shared<sphere>(center, 0.2, make_shared<lambertian>(albedo)));
+                    world.add(make_shared<moving_sphere>(
+                        center, center + vec3(0, random_double(0, .5), 0), 0.0, 1.0, 0.2,
+                        make_shared<lambertian>(albedo)));
                 }
                 else if (choose_mat < 0.95) {
                     // metal
@@ -89,8 +90,8 @@ hittable_list random_scene() {
 }
 
 int main() {
-    const int image_width = 800;
-    const int image_height = 400;
+    const int image_width = 400;
+    const int image_height = 200;
     const int samples_per_pixel = 100;
     const int max_depth = 50;
     const auto aspect_ratio = double(image_width) / image_height;
@@ -104,7 +105,7 @@ int main() {
     auto dist_to_focus = 10.0;
     auto aperture = 0.1;
 
-    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
 	hittable_list world = random_scene();
 
