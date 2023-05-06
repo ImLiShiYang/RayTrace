@@ -160,5 +160,14 @@ inline double schlick(double cosine, double ref_idx) {
     return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
+//从单位圆返回点
+inline vec3 random_in_unit_disk() {
+    while (true) {
+        auto p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        if (p.length_squared() >= 1) continue;
+        return p;
+    }
+}
+
 
 #endif // !VEC3
