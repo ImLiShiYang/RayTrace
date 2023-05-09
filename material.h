@@ -2,6 +2,7 @@
 #define Material_H
 
 #include "hittable.h"
+#include "texture .h"
 
 class material {
 public:
@@ -13,20 +14,20 @@ public:
 //漫反射材质
 class lambertian : public material {
 public:
-    lambertian(const vec3& a) : albedo(a) {}
+    lambertian(shared_ptr<texture> a) : albedo(a) {}
 
     virtual bool scatter(
         const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const 
     {
         vec3 scatter_direction = rec.normal + random_unit_vector();
         scattered = ray(rec.p, scatter_direction, r_in.time());
-        attenuation = albedo;
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 
 public:
     //反照率
-    vec3 albedo;
+    shared_ptr<texture> albedo;
 };
 
 //金属材质

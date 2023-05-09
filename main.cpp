@@ -46,10 +46,17 @@ vec3 ray_color(const ray& r, const hittable& world,int depth)
 }
 
 hittable_list random_scene() {
+
     hittable_list world;
 
-    world.add(make_shared<sphere>(
-        vec3(0, -1000, 0), 1000, make_shared<lambertian>(vec3(0.5, 0.5, 0.5))));
+    //作为地板的大球
+    auto checker = make_shared<checker_texture>(
+        make_shared<constant_texture>(vec3(0.2, 0.3, 0.1)),
+        make_shared<constant_texture>(vec3(0.9, 0.9, 0.9))
+    );
+
+    world.add(make_shared<sphere>(vec3(0, -1000, 0), 1000, make_shared<lambertian>(checker)));
+        
 
     int i = 1;
     for (int a = -11; a < 11; a++) {
@@ -60,9 +67,10 @@ hittable_list random_scene() {
                 if (choose_mat < 0.8) {
                     // diffuse
                     auto albedo = vec3::random() * vec3::random();
+                    auto albedo_ptr = make_shared<lambertian>(make_shared<constant_texture>(albedo));
                     world.add(make_shared<moving_sphere>(
-                        center, center + vec3(0, random_double(0, .5), 0), 0.0, 1.0, 0.2,
-                        make_shared<lambertian>(albedo)));
+                        center, center + vec3(0, random_double(0, .5), 0), 0.0, 1.0, 0.2, albedo_ptr));
+                        
                 }
                 else if (choose_mat < 0.95) {
                     // metal
@@ -81,8 +89,9 @@ hittable_list random_scene() {
 
     world.add(make_shared<sphere>(vec3(0, 1, 0), 1.0, make_shared<dielectric>(1.5)));
 
+    auto ptr2 = make_shared<lambertian>(make_shared<constant_texture>(vec3(0.4, 0.2, 0.1)));
     world.add(
-        make_shared<sphere>(vec3(-4, 1, 0), 1.0, make_shared<lambertian>(vec3(0.4, 0.2, 0.1))));
+        make_shared<sphere>(vec3(-4, 1, 0), 1.0, ptr2));
 
     world.add(
         make_shared<sphere>(vec3(4, 1, 0), 1.0, make_shared<metal>(vec3(0.7, 0.6, 0.5), 0.0)));
@@ -92,8 +101,8 @@ hittable_list random_scene() {
 }
 
 int main() {
-    const int image_width = 400;
-    const int image_height = 200;
+    const int image_width = 600;
+    const int image_height = 300;
     const int samples_per_pixel = 100;
     const int max_depth = 50;
     const auto aspect_ratio = double(image_width) / image_height;

@@ -13,9 +13,11 @@ struct hit_record {
     vec3 normal;
     //材质类
     shared_ptr<material> mat_ptr;
+    //贴图uv
+    double u, v;
     //经过多长时间
     double t;
-
+    //判断法线朝向
     bool front_face;
 
 	inline void set_face_normal(const ray& r, const vec3& outward_normal) {
