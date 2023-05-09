@@ -11,19 +11,6 @@
 
 using namespace std;
 
-double hit_sphere(const vec3& center, double radius, const ray& r) {
-    vec3 oc = r.origin() - center;
-    auto a = dot(r.direction(), r.direction());
-    auto b = 2.0 * dot(oc, r.direction());
-    auto c = dot(oc, oc) - radius * radius;
-    auto discriminant = b * b - 4 * a * c;
-    if (discriminant < 0) {
-        return -1.0;
-    }
-    else {
-        return (-b - sqrt(discriminant)) / (2.0 * a);
-    }
-}
 
 vec3 ray_color(const ray& r, const hittable& world,int depth) 
 {
@@ -31,9 +18,11 @@ vec3 ray_color(const ray& r, const hittable& world,int depth)
         return vec3(1, 0, 0);
 
 	hit_record rec;
+    //判断光线是否击中物体
 	if (world.hit(r, 0.001, infinity, rec)) {
         ray scattered;
         vec3 attenuation;
+
         if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
             return attenuation * ray_color(scattered, world, depth - 1);
         return vec3(0, 0, 0);
@@ -100,6 +89,30 @@ hittable_list random_scene() {
     //return world;
 }
 
+hittable_list two_spheres() {
+    hittable_list objects;
+
+    auto checker = make_shared<checker_texture>(
+        make_shared<constant_texture>(vec3(0.2, 0.3, 0.1)),
+        make_shared<constant_texture>(vec3(0.9, 0.9, 0.9))
+    );
+
+    objects.add(make_shared<sphere>(vec3(0, -10, 0), 10, make_shared<lambertian>(checker)));
+    objects.add(make_shared<sphere>(vec3(0, 10, 0), 10, make_shared<lambertian>(checker)));
+
+    return objects;
+}
+
+hittable_list two_perlin_spheres() {
+    hittable_list objects;
+
+    auto pertext = make_shared<noise_texture>();
+    objects.add(make_shared<sphere>(vec3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
+    objects.add(make_shared<sphere>(vec3(0, 2, 0), 2, make_shared<lambertian>(pertext)));
+
+    return objects;
+}
+
 int main() {
     const int image_width = 600;
     const int image_height = 300;
@@ -118,7 +131,7 @@ int main() {
 
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
-	hittable_list world = random_scene();
+	hittable_list world = two_perlin_spheres();
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 

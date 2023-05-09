@@ -84,6 +84,7 @@ public:
             return true;
         }
 
+        //这里只返回折射，忽略反射
         vec3 refracted = refract(unit_direction, rec.normal, etai_over_etat);
         scattered = ray(rec.p, refracted);
         return true;

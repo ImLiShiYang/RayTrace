@@ -3,6 +3,7 @@
 
 #include "rtweekend.h"
 #include "vec3.h"
+#include "perlin.h"
 
 class texture {
 public:
@@ -38,6 +39,18 @@ public:
 public:
     shared_ptr<texture> odd;
     shared_ptr<texture> even;
+};
+
+class noise_texture : public texture {
+public:
+    noise_texture() {}
+
+    virtual vec3 value(double u, double v, const vec3& p) const {
+        return vec3(1, 1, 1) * noise.noise(p);
+    }
+
+public:
+    perlin noise;
 };
 
 
