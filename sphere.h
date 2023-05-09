@@ -88,6 +88,7 @@ vec3 moving_sphere::center(double time) const {
 
 bool moving_sphere::hit(
     const ray& r, double t_min, double t_max, hit_record& rec) const {
+
     vec3 oc = r.origin() - center(r.time());
     auto a = r.direction().length_squared();
     auto half_b = dot(oc, r.direction());

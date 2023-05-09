@@ -40,7 +40,8 @@ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& re
 }
 
 bool hittable_list::bounding_box(double t0, double t1, aabb& output_box) const {
-	if (objects.empty()) return false;
+	if (objects.empty()) 
+		return false;
 
 	aabb temp_box;
 	bool first_box = true;
