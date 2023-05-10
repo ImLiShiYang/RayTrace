@@ -56,4 +56,6 @@ bool hittable_list::bounding_box(double t0, double t1, aabb& output_box) const {
 	return true;
 }
 
+
+
 #endif
