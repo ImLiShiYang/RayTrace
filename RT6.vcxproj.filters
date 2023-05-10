@@ -50,10 +50,16 @@
     <ClInclude Include="bvh.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="texture .h">
+    <ClInclude Include="texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="perlin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="image_texture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

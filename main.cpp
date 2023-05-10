@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include<fstream>
 
 #include "ray.h"
@@ -8,6 +8,10 @@
 #include "camera.h"
 #include "material.h"
 #include "bvh.h"
+#include "image_texture.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 using namespace std;
 
@@ -18,7 +22,7 @@ vec3 ray_color(const ray& r, const hittable& world,int depth)
         return vec3(1, 0, 0);
 
 	hit_record rec;
-    //ÅĞ¶Ï¹âÏßÊÇ·ñ»÷ÖĞÎïÌå
+    //åˆ¤æ–­å…‰çº¿æ˜¯å¦å‡»ä¸­ç‰©ä½“
 	if (world.hit(r, 0.001, infinity, rec)) {
         ray scattered;
         vec3 attenuation;
@@ -29,7 +33,7 @@ vec3 ray_color(const ray& r, const hittable& world,int depth)
 	}
 
     vec3 unit_direction = unit_vector(r.direction());
-    //(x+1)*0.5ÊÇÎªÁË°Ñ(-1,1)×ª»»³É(0,1)
+    //(x+1)*0.5æ˜¯ä¸ºäº†æŠŠ(-1,1)è½¬æ¢æˆ(0,1)
     auto p = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - p) * vec3(1.0, 1.0, 1.0) + p * vec3(0.5, 0.7, 1.0);
 }
@@ -38,7 +42,7 @@ hittable_list random_scene() {
 
     hittable_list world;
 
-    //×÷ÎªµØ°åµÄ´óÇò
+    //ä½œä¸ºåœ°æ¿çš„å¤§çƒ
     auto checker = make_shared<checker_texture>(
         make_shared<constant_texture>(vec3(0.2, 0.3, 0.1)),
         make_shared<constant_texture>(vec3(0.9, 0.9, 0.9))
@@ -89,29 +93,22 @@ hittable_list random_scene() {
     //return world;
 }
 
-hittable_list two_spheres() {
-    hittable_list objects;
+hittable_list earth() {
+    int nx, ny, nn;
+    unsigned char* texture_data = stbi_load("earthmap.jpg", &nx, &ny, &nn, 0);
+    if (texture_data == nullptr)
+        cout << "Cannot load texture" << endl;
 
-    auto checker = make_shared<checker_texture>(
-        make_shared<constant_texture>(vec3(0.2, 0.3, 0.1)),
-        make_shared<constant_texture>(vec3(0.9, 0.9, 0.9))
-    );
+    auto earth_surface =
+        make_shared<lambertian>(make_shared<image_texture>(texture_data, nx, ny));
+    auto globe = make_shared<sphere>(vec3(0, 0, 0), 2, earth_surface);
 
-    objects.add(make_shared<sphere>(vec3(0, -10, 0), 10, make_shared<lambertian>(checker)));
-    objects.add(make_shared<sphere>(vec3(0, 10, 0), 10, make_shared<lambertian>(checker)));
-
-    return objects;
+    hittable_list world;
+    world.add(globe);
+    return hittable_list(world);
 }
 
-hittable_list two_perlin_spheres() {
-    hittable_list objects;
 
-    auto pertext = make_shared<noise_texture>();
-    objects.add(make_shared<sphere>(vec3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
-    objects.add(make_shared<sphere>(vec3(0, 2, 0), 2, make_shared<lambertian>(pertext)));
-
-    return objects;
-}
 
 int main() {
     const int image_width = 600;
@@ -120,7 +117,7 @@ int main() {
     const int max_depth = 50;
     const auto aspect_ratio = double(image_width) / image_height;
 
-    ofstream fout("MyImage.ppm"); //ÎÄ¼şÊä³öÁ÷¶ÔÏó
+    ofstream fout("MyImage.ppm"); //æ–‡ä»¶è¾“å‡ºæµå¯¹è±¡
     streambuf* pOld = cout.rdbuf(fout.rdbuf());
 
     vec3 lookfrom(13, 2, 3);
@@ -131,7 +128,7 @@ int main() {
 
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
-	hittable_list world = two_perlin_spheres();
+	hittable_list world = earth();
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 

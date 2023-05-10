@@ -4,6 +4,13 @@
 #include "hittable.h"
 class material;
 
+inline void get_sphere_uv(const vec3& p, double& u, double& v) {
+    auto phi = atan2(p.z(), p.x());
+    auto theta = asin(p.y());
+    u = 1 - (phi + pi) / (2 * pi);
+    v = (theta + pi / 2) / pi;
+}
+
 class sphere : public hittable {
 public:
     sphere() {}
@@ -37,6 +44,7 @@ bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) cons
 			vec3 outward_normal = (rec.p - center) / radius;
 			rec.set_face_normal(r, outward_normal);
             rec.mat_ptr = mat_ptr;
+            get_sphere_uv((rec.p - center) / radius, rec.u, rec.v);
             return true;
         }
         //这是离光源较远的点
@@ -47,6 +55,7 @@ bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) cons
 			vec3 outward_normal = (rec.p - center) / radius;
 			rec.set_face_normal(r, outward_normal);
             rec.mat_ptr = mat_ptr;
+            get_sphere_uv((rec.p - center) / radius, rec.u, rec.v);
             return true;
         }
     }
@@ -106,6 +115,7 @@ bool moving_sphere::hit(
             vec3 outward_normal = (rec.p - center(r.time())) / radius;
             rec.set_face_normal(r, outward_normal);
             rec.mat_ptr = mat_ptr;
+
             return true;
         }
 
@@ -132,5 +142,7 @@ bool moving_sphere::bounding_box(double t0, double t1, aabb& output_box) const {
     output_box = surrounding_box(box0, box1);
     return true;
 }
+
+
 
 #endif
