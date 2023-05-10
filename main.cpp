@@ -9,6 +9,7 @@
 #include "material.h"
 #include "bvh.h"
 #include "image_texture.h"
+#include "arealight.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -36,6 +37,26 @@ vec3 ray_color(const ray& r, const hittable& world,int depth)
     //(x+1)*0.5是为了把(-1,1)转换成(0,1)
     auto p = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - p) * vec3(1.0, 1.0, 1.0) + p * vec3(0.5, 0.7, 1.0);
+}
+
+vec3 ray_color(const ray& r, const vec3& background, const hittable& world, int depth) {
+    hit_record rec;
+
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if (depth <= 0)
+        return vec3(0, 0, 0);
+
+    // 判断光线是否击中物体，如果没有则直接返回黑色
+    if (!world.hit(r, 0.001, infinity, rec))
+        return background;
+
+    ray scattered;
+    vec3 attenuation;
+    vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
+    if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+        return emitted;
+
+    return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
 }
 
 hittable_list random_scene() {
@@ -108,7 +129,35 @@ hittable_list earth() {
     return hittable_list(world);
 }
 
+hittable_list simple_light() {
+    hittable_list world;
 
+    int nx, ny, nn;
+    unsigned char* texture_data = stbi_load("earthmap.jpg", &nx, &ny, &nn, 0);
+    if (texture_data == nullptr)
+        cout << "Cannot load texture" << endl;
+
+    auto earth_surface =
+        make_shared<lambertian>(make_shared<image_texture>(texture_data, nx, ny));
+    auto globe = make_shared<sphere>(vec3(0, 1, 0), 1, earth_surface);
+    world.add(globe);
+
+    //作为地板的大球
+    auto checker = make_shared<checker_texture>(
+        make_shared<constant_texture>(vec3(0.2, 0.3, 0.1)),
+        make_shared<constant_texture>(vec3(0.9, 0.9, 0.9))
+    );
+    world.add(make_shared<sphere>(vec3(0, -1000, 0), 1000, make_shared<lambertian>(checker)));
+
+    //面光源材质
+    auto difflight = make_shared<diffuse_light>(make_shared<constant_texture>(vec3(4, 4, 4)));
+    //球形光源
+    world.add(make_shared<sphere>(vec3(0, 3, 0), 1, difflight));
+    //面光源
+    world.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
+
+    return world;
+}
 
 int main() {
     const int image_width = 600;
@@ -116,6 +165,8 @@ int main() {
     const int samples_per_pixel = 100;
     const int max_depth = 50;
     const auto aspect_ratio = double(image_width) / image_height;
+
+    const vec3 background(0, 0, 0);
 
     ofstream fout("MyImage.ppm"); //文件输出流对象
     streambuf* pOld = cout.rdbuf(fout.rdbuf());
@@ -128,7 +179,7 @@ int main() {
 
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
-	hittable_list world = earth();
+	hittable_list world = simple_light();
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
@@ -140,7 +191,8 @@ int main() {
                 auto u = (i + random_double()) / image_width;
                 auto v = (j + random_double()) / image_height;
                 ray r = cam.get_ray(u, v);
-                color += ray_color(r, world, max_depth);
+                //color += ray_color(r, world, max_depth);
+                color += ray_color(r, background, world, max_depth);
             }
             color.write_color(std::cout, samples_per_pixel);
         }
