@@ -129,11 +129,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.h" />
+    <ClCompile Include="tgaimage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arealight.h" />
     <ClInclude Include="boundingBox.h" />
     <ClInclude Include="box.h" />
+    <ClInclude Include="brdf.h" />
     <ClInclude Include="bvh.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="hittable.h" />
@@ -145,10 +147,10 @@
     <ClInclude Include="sphere.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="tgaimage.h" />
     <ClInclude Include="vec3.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MyImage.ppm" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

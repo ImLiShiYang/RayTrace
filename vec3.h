@@ -3,10 +3,12 @@
 
 #include <iostream>
 #include "rtweekend.h"
+#include "tgaimage.h"
 
 class vec3 {
 public:
     vec3() : e{ 0,0,0 } {}
+    vec3(double e1) : e{ e1,e1,e1 } {}
     vec3(double e0, double e1, double e2) : e{ e0, e1, e2 } {}
 
     double x() const { return e[0]; }
@@ -53,7 +55,7 @@ public:
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
 
-    void write_color(std::ostream& out, int samples_per_pixel) {
+    void write_color(int i,int j,TGAImage& image, int samples_per_pixel) {
         // Divide the color total by the number of samples.
         auto scale = 1.0 / samples_per_pixel;
         auto r = sqrt(scale * e[0]);
@@ -61,9 +63,10 @@ public:
         auto b = sqrt(scale * e[2]);
 
         // Write the translated [0,255] value of each color component.
-        out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
-            << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
-            << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
+        //out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
+        //    << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
+        //    << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
+        image.set(i, j, TGAColor(256 * clamp(r, 0.0, 0.999), 256 * clamp(g, 0.0, 0.999), 256 * clamp(b, 0.0, 0.999)));
     }
 
 public:

@@ -21,6 +21,9 @@
     <ClCompile Include="material.h">
       <Filter>头文件</Filter>
     </ClCompile>
+    <ClCompile Include="tgaimage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ray.h">
@@ -68,9 +71,14 @@
     <ClInclude Include="box.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="brdf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tgaimage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MyImage.ppm" />
     <None Include="README.md" />
   </ItemGroup>
 </Project>

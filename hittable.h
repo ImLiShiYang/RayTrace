@@ -54,6 +54,7 @@ public:
     shared_ptr<hittable> ptr;
 };
 
+
 inline bool box_compare(const shared_ptr<hittable> a, const shared_ptr<hittable> b, int axis) {
     aabb box_a;
     aabb box_b;

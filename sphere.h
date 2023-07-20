@@ -107,7 +107,7 @@ bool moving_sphere::hit(
 
     if (discriminant > 0) {
         auto root = sqrt(discriminant);
-
+        //选择最近的交点保存
         auto temp = (-half_b - root) / a;
         if (temp < t_max && temp > t_min) {
             rec.t = temp;

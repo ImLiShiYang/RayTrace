@@ -14,6 +14,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "box.h"
+#include "tgaimage.h"
 
 using namespace std;
 
@@ -184,8 +185,8 @@ hittable_list cornell_box() {
 }
 
 int main() {
-    const int image_width = 600;
-    const int image_height = 300;
+    const int image_width = 800;
+    const int image_height = 600;
     const int samples_per_pixel = 100;
     const int max_depth = 50;
     const auto aspect_ratio = double(image_width) / image_height;
@@ -195,21 +196,22 @@ int main() {
     ofstream fout("MyImage.ppm"); //文件输出流对象
     streambuf* pOld = cout.rdbuf(fout.rdbuf());
 
-    vec3 lookfrom(278, 278, -800);
+    vec3 eye_pos(278, 278, -800);
     vec3 lookat(278, 278, 0);
     vec3 vup(0, 1, 0);
     auto dist_to_focus = 10.0;
     auto aperture = 0.0;
     auto vfov = 40.0;
 
-    camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    camera cam(eye_pos, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
 	hittable_list world = cornell_box();
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    TGAImage image(image_width, image_height, TGAImage::RGB);
 
     for (int j = image_height - 1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        std::cerr << "\r剩余进度: " << j << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
             vec3 color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s) {
@@ -219,9 +221,9 @@ int main() {
                 //color += ray_color(r, world, max_depth);
                 color += ray_color(r, background, world, max_depth);
             }
-            color.write_color(std::cout, samples_per_pixel);
+            color.write_color(i, j, image, samples_per_pixel);
         }
     }
-
+    image.write_tga_file("Image.tga");
     std::cerr << "\nDone.\n";
 }
