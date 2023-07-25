@@ -20,6 +20,9 @@ struct hit_record {
     //判断法线朝向
     bool front_face;
 
+    /*
+    *光线与法线方向相同，则法线方向取反
+    */
 	inline void set_face_normal(const ray& r, const vec3& outward_normal) {
 		front_face = dot(r.direction(), outward_normal) < 0;
 		normal = front_face ? outward_normal : -outward_normal;
@@ -58,10 +61,10 @@ public:
 inline bool box_compare(const shared_ptr<hittable> a, const shared_ptr<hittable> b, int axis) {
     aabb box_a;
     aabb box_b;
-
+    //获取a和b的包围盒
     if (!a->bounding_box(0, 0, box_a) || !b->bounding_box(0, 0, box_b))
         std::cerr << "No bounding box in bvh_node constructor.\n";
-
+    //根据包围盒左下角位置来排序
     return box_a.min().e[axis] < box_b.min().e[axis];
 }
 

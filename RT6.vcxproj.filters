@@ -71,9 +71,6 @@
     <ClInclude Include="box.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="brdf.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="tgaimage.h">
       <Filter>头文件</Filter>
     </ClInclude>

@@ -113,7 +113,6 @@ hittable_list random_scene() {
         make_shared<sphere>(vec3(4, 1, 0), 1.0, make_shared<metal>(vec3(0.7, 0.6, 0.5), 0.0)));
 
     return static_cast<hittable_list>(make_shared<bvh_node>(world, 0, 1));
-    //return world;
 }
 
 hittable_list earth() {
@@ -173,28 +172,37 @@ hittable_list cornell_box() {
 
     objects.add(make_shared<flip_face>(make_shared<yz_rect>(0, 555, 0, 555, 555, green)));
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+    //上方的面光源
     objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
     objects.add(make_shared<flip_face>(make_shared<xz_rect>(0, 555, 0, 555, 555, white)));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<flip_face>(make_shared<xy_rect>(0, 555, 0, 555, 555, white)));
     
-    objects.add(make_shared<box>(vec3(130, 0, 65), vec3(295, 165, 230), white));
-    objects.add(make_shared<box>(vec3(265, 0, 295), vec3(430, 330, 460), white));
+    //objects.add(make_shared<sphere>(vec3(150,200,350), 100, make_shared<dielectric>(1.5)));
+    //objects.add(make_shared<box>(vec3(265, 0, 295), vec3(430, 330, 460), white));
 
-    return objects;
+    shared_ptr<hittable> box1 = make_shared<box>(vec3(0, 0, 0), vec3(165, 330, 165), white);
+    box1 = make_shared<rotate_y>(box1, 15);
+    box1 = make_shared<translate>(box1, vec3(265, 0, 295));
+    objects.add(box1);
+
+    shared_ptr<hittable> box2 = make_shared<box>(vec3(0, 0, 0), vec3(165, 165, 165), white);
+    box2 = make_shared<rotate_y>(box2, -18);
+    box2 = make_shared<translate>(box2, vec3(130, 0, 65));
+    objects.add(box2);
+
+    return static_cast<hittable_list>(make_shared<bvh_node>(objects, 0, 1));
+    //return objects;
 }
 
 int main() {
     const int image_width = 800;
     const int image_height = 600;
-    const int samples_per_pixel = 100;
+    const int samples_per_pixel = 300;
     const int max_depth = 50;
     const auto aspect_ratio = double(image_width) / image_height;
 
     const vec3 background(0, 0, 0);
-
-    ofstream fout("MyImage.ppm"); //文件输出流对象
-    streambuf* pOld = cout.rdbuf(fout.rdbuf());
 
     vec3 eye_pos(278, 278, -800);
     vec3 lookat(278, 278, 0);
@@ -204,10 +212,9 @@ int main() {
     auto vfov = 40.0;
 
     camera cam(eye_pos, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-
+    //random_scene cornell_box
 	hittable_list world = cornell_box();
 
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     TGAImage image(image_width, image_height, TGAImage::RGB);
 
     for (int j = image_height - 1; j >= 0; --j) {

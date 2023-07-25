@@ -8,16 +8,14 @@ class bvh_node : public hittable {
 public:
     bvh_node();
 
-    bvh_node(hittable_list& list, double time0, double time1)
-        : bvh_node(list.objects, 0, list.objects.size(), time0, time1)
+    bvh_node(hittable_list& list, double time0, double time1) : bvh_node(list.objects, 0, list.objects.size(), time0, time1)
     {}
+        
+    bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end, double time0, double time1);
+        
 
-    bvh_node(
-        std::vector<shared_ptr<hittable>>& objects,
-        size_t start, size_t end, double time0, double time1);
-
-    virtual bool hit(const ray& r, double tmin, double tmax, hit_record& rec) const;
-    virtual bool bounding_box(double t0, double t1, aabb& output_box) const;
+    virtual bool hit(const ray& r, double tmin, double tmax, hit_record& rec) const override;
+    virtual bool bounding_box(double t0, double t1, aabb& output_box) const override;
 
 public:
     shared_ptr<hittable> left;
@@ -26,10 +24,8 @@ public:
 };
 
 //对场景物体分割   
-bvh_node::bvh_node(
-    std::vector<shared_ptr<hittable>>& objects,
-    size_t start, size_t end, double time0, double time1
-) {
+bvh_node::bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end, double time0, double time1)   
+{
     int axis = random_int(0, 3);
     //函数指针赋值
     auto comparator = (axis == 0) ? box_x_compare : (axis == 1) ? box_y_compare : box_z_compare;

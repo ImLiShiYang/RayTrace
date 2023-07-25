@@ -45,7 +45,7 @@ bool hittable_list::bounding_box(double t0, double t1, aabb& output_box) const {
 
 	aabb temp_box;
 	bool first_box = true;
-
+	//用于把list中所有物体的包围盒合并
 	for (const auto& object : objects) {
 		if (!object->bounding_box(t0, t1, temp_box)) 
 			return false;

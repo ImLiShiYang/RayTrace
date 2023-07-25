@@ -37,7 +37,12 @@ public:
         return *this *= 1 / t;
     }
 
-    
+    bool near_zero()
+    {
+        if (std::abs(e[0]) < 0.000001 && std::abs(e[1]) < 0.000001 && std::abs(e[2]) < 0.000001)
+            return true;
+        return false;
+    }
 
     inline static vec3 random() {
         return vec3(random_double(), random_double(), random_double());

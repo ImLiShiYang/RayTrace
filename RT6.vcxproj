@@ -135,7 +135,6 @@
     <ClInclude Include="arealight.h" />
     <ClInclude Include="boundingBox.h" />
     <ClInclude Include="box.h" />
-    <ClInclude Include="brdf.h" />
     <ClInclude Include="bvh.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="hittable.h" />
