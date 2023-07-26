@@ -11,7 +11,7 @@ public:
         return false;
     }
 
-    virtual vec3 emitted(double u, double v, const vec3& p) const {
+    virtual vec3 emitted(const ray& r_in, const hit_record& rec, double u, double v, const vec3& p) const {
         return vec3(0, 0, 0);
     }
 
@@ -30,7 +30,7 @@ public:
     virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& alb, ray& scattered, double& pdf) const override
     {
         //反射方向
-        vec3 scatter_direction = rec.normal + random_unit_vector();
+        /*vec3 scatter_direction = rec.normal + random_unit_vector();
 
         if (scatter_direction.near_zero())
             scatter_direction = rec.normal;
@@ -38,12 +38,20 @@ public:
         scattered = ray(rec.p, unit_vector(scatter_direction), r_in.time());
         alb = albedo->value(rec.u, rec.v, rec.p);
         pdf = dot(rec.normal, scattered.direction()) / pi;
+        return true;*/
+
+        auto direction = random_in_hemisphere(rec.normal);
+        scattered = ray(rec.p, unit_vector(direction), r_in.time());
+        alb = albedo->value(rec.u, rec.v, rec.p);
+        pdf = 0.5 / pi;
         return true;
     }
 
     double scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override
     {
+        //朗伯曲面的散射pdf函数s(direction)正比于cos()
         auto cosine = dot(rec.normal, unit_vector(scattered.direction()));
+        //cosine值是散射光线和表面法线的夹角，所以大于90°无效
         return cosine < 0 ? 0 : cosine / pi;
     }
 
@@ -123,8 +131,13 @@ public:
         return false;
     }
 
-    virtual vec3 emitted(double u, double v, const vec3& p) const {
-        return emit->value(u, v, p);
+    virtual vec3 emitted(const ray& r_in, const hit_record& rec, double u, double v, const vec3& p) const override
+    {    
+        //入射光线与光源法向量朝向不同，则返回光源颜色
+        if (rec.front_face)
+            return emit->value(u, v, p);
+        else
+            return vec3(0, 0, 0);
     }
 
 public:

@@ -19,27 +19,27 @@
 using namespace std;
 
 
-vec3 ray_color(const ray& r, const hittable& world,int depth) 
-{
-    if (depth <= 0)
-        return vec3(1, 0, 0);
-
-	hit_record rec;
-    //判断光线是否击中物体
-	if (world.hit(r, 0.001, infinity, rec)) {
-        ray scattered;
-        vec3 attenuation;
-
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-            return attenuation * ray_color(scattered, world, depth - 1);
-        return vec3(0, 0, 0);
-	}
-
-    vec3 unit_direction = unit_vector(r.direction());
-    //(x+1)*0.5是为了把(-1,1)转换成(0,1)
-    auto p = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0 - p) * vec3(1.0, 1.0, 1.0) + p * vec3(0.5, 0.7, 1.0);
-}
+//vec3 ray_color(const ray& r, const hittable& world,int depth) 
+//{
+//    if (depth <= 0)
+//        return vec3(1, 0, 0);
+//
+//	hit_record rec;
+//    //判断光线是否击中物体
+//	if (world.hit(r, 0.001, infinity, rec)) {
+//        ray scattered;
+//        vec3 attenuation;
+//
+//        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+//            return attenuation * ray_color(scattered, world, depth - 1);
+//        return vec3(0, 0, 0);
+//	}
+//
+//    vec3 unit_direction = unit_vector(r.direction());
+//    //(x+1)*0.5是为了把(-1,1)转换成(0,1)
+//    auto p = 0.5 * (unit_direction.y() + 1.0);
+//    return (1.0 - p) * vec3(1.0, 1.0, 1.0) + p * vec3(0.5, 0.7, 1.0);
+//}
 
 vec3 ray_color(const ray& r, const vec3& background, const hittable& world, int depth) {
     hit_record rec;
@@ -54,11 +54,37 @@ vec3 ray_color(const ray& r, const vec3& background, const hittable& world, int 
 
     ray scattered;
     vec3 attenuation;
-    vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-    if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+    vec3 emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+    double pdf = 0;
+    //反照率
+    vec3 albedo;
+
+    if (!rec.mat_ptr->scatter(r, rec, albedo, scattered, pdf))
         return emitted;
 
-    return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
+    //面光源上的随机位置
+    auto on_light = vec3(random_double(213, 343), 554, random_double(227, 332));
+    auto to_light = on_light - rec.p;
+    auto distance_squared = to_light.length_squared();
+    to_light = unit_vector(to_light);
+
+    if (dot(to_light, rec.normal) < 0)
+        return emitted;
+
+    //面光源面积
+    double light_area = (343 - 213) * (332 - 227);
+    //这里是求面光源法线和on_light之间的cosine值
+    auto light_cosine = fabs(to_light.y());
+    if (light_cosine < 0.000001)
+        return emitted;
+
+    pdf = distance_squared / (light_cosine * light_area);
+    scattered = ray(rec.p, to_light, r.time());
+
+    //return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
+
+    return emitted + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered)
+        * ray_color(scattered, background, world, depth - 1) / pdf;
 }
 
 hittable_list random_scene() {
@@ -173,7 +199,7 @@ hittable_list cornell_box() {
     objects.add(make_shared<flip_face>(make_shared<yz_rect>(0, 555, 0, 555, 555, green)));
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
     //上方的面光源
-    objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
+    objects.add(make_shared<flip_face>(make_shared<xz_rect>(213, 343, 227, 332, 555, light)));
     objects.add(make_shared<flip_face>(make_shared<xz_rect>(0, 555, 0, 555, 555, white)));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<flip_face>(make_shared<xy_rect>(0, 555, 0, 555, 555, white)));
@@ -198,7 +224,7 @@ hittable_list cornell_box() {
 int main() {
     const int image_width = 800;
     const int image_height = 600;
-    const int samples_per_pixel = 300;
+    const int samples_per_pixel = 30;
     const int max_depth = 50;
     const auto aspect_ratio = double(image_width) / image_height;
 

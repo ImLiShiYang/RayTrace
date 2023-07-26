@@ -21,9 +21,10 @@ struct hit_record {
     bool front_face;
 
     /*
-    *光线与法线方向相同，则法线方向取反
+    *入射光线与交点法线方向朝向相同，则法线方向取反
     */
-	inline void set_face_normal(const ray& r, const vec3& outward_normal) {
+	inline void set_face_normal(const ray& r, const vec3& outward_normal) 
+    {
 		front_face = dot(r.direction(), outward_normal) < 0;
 		normal = front_face ? outward_normal : -outward_normal;
 	}
@@ -41,7 +42,7 @@ class flip_face : public hittable {
 public:
     flip_face(shared_ptr<hittable> p) : ptr(p) {}
 
-    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const override {
         if (!ptr->hit(r, t_min, t_max, rec))
             return false;
 
@@ -49,7 +50,7 @@ public:
         return true;
     }
 
-    virtual bool bounding_box(double t0, double t1, aabb& output_box) const {
+    virtual bool bounding_box(double t0, double t1, aabb& output_box) const override {
         return ptr->bounding_box(t0, t1, output_box);
     }
 

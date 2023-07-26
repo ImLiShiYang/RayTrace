@@ -142,7 +142,8 @@ inline vec3 random_in_unit_sphere() {
 
 //在半球内的随机单位方向向量
 inline vec3 random_in_hemisphere(const vec3& normal) {
-    vec3 in_unit_sphere = random_in_unit_sphere();
+    vec3 in_unit_sphere = random_unit_vector();
+    //法线全是(0,0,1)(0,1,0)(1,0,0)
     if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
         return in_unit_sphere;
     else
